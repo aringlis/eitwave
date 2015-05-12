@@ -42,24 +42,24 @@ def params(flare, **kwargs):
         flare_event_coord2 = flare_coords[1]
 
     """ Define the parameters we will use for the unraveling of the maps"""
-    params = {"epi_lat": flare_event_coord2, #30., #degrees, HG latitude of wave epicenter
-              "epi_lon": flare_event_coord1, #45., #degrees, HG longitude of wave epicenter
+    params = {"epi_lat": flare_event_coord2 * u.degree, #30., #degrees, HG latitude of wave epicenter
+              "epi_lon": flare_event_coord1 * u.degree, #45., #degrees, HG longitude of wave epicenter
               #HG grid, probably would only want to change the bin sizes
-              "lat_min": -90.,
-              "lat_max": 90.,
-              "lat_bin": 0.2,
-              "lon_min": -180.,
-              "lon_max": 180.,
-              "lon_bin": 5.,
+              "lat_min": -90. * u.degree,
+              "lat_max": 90. * u.degree,
+              "lat_bin": 0.2 * u.degree,
+              "lon_min": -180. * u.degree,
+              "lon_max": 180. * u.degree,
+              "lon_bin": 5. * u.degree,
               #    #HPC grid, probably would only want to change the bin sizes
-              "hpcx_min": -1025.,
-              "hpcx_max": 1023.,
-              "hpcx_bin": 2.,
-              "hpcy_min": -1025.,
-              "hpcy_max": 1023.,
-              "hpcy_bin": 2.,
-              "hglt_obs": 0,
-              "rotation": 360. / (27. * 86400.), #degrees/s, rigid solar rotation
+              "hpcx_min": -1025. * u.arcsec,
+              "hpcx_max": 1023. * u.arcsec,
+              "hpcx_bin": 4. * u.arcsec,
+              "hpcy_min": -1025. * u.arcsec,
+              "hpcy_max": 1023. * u.arcsec,
+              "hpcy_bin": 4. * u.arcsec,
+              "hglt_obs": 0 * u.degree,
+              "rotation": 360. / (27. * 86400.) * u.degree / u.s, #degrees/s, rigid solar rotation
               }
 
     return params
@@ -289,11 +289,11 @@ def map_reravel(unravelled_maps, params, verbose=True):
         reraveled = util.map_hg_to_hpc_rotate(m,
                                         epi_lon=params.get('epi_lon').to('degree').value,
                                         epi_lat=params.get('epi_lat').to('degree').value,
-                                        xbin=2.4,
-                                        ybin=2.4)
-        reraveled.data[np.isnan(reraveled)]=0.0
+                                        xbin=params.get('hpcx_bin').value,
+                                        ybin=params.get('hpcy_bin').value)
+        reraveled.data[np.isnan(reraveled.data)]=0.0
         reraveled_maps += [reraveled]
-    return reraveled_maps
+    return Map(reraveled_maps,cube=True)
 
 
 def write_movie(mc, filename, start=0, end=None):

@@ -14,6 +14,7 @@ import demonstration_info
 import test_wave2d
 import aware_utils
 import aware_plot
+from make_euvwave_colour_map import make_euvwave_colour_map
 
 plt.ion()
 
@@ -32,8 +33,8 @@ plt.ion()
 simulated = ['sim_speed', 'sim_half_speed', 'sim_double_speed', 'sim_speed_and_dec', 'sim_speed_and_acc']
 
 # Position measuring choices
-position_choice = 'maximum'
-error_choice = 'maxwidth'
+position_choice = 'average'
+error_choice = 'std'
 
 # Image output directory
 imgdir = os.path.expanduser('~/eitwave/img/')
@@ -41,8 +42,8 @@ if not(os.path.exists(imgdir)):
     os.makedirs(imgdir)
 
 # Examples to look at
-#example = 'previous1'
-example = simulated[0]
+example = 'previous1'
+#example = simulated[0]
 #example = 'corpita_fig4'
 #example = 'corpita_fig6'
 #example = 'corpita_fig7'
@@ -84,7 +85,7 @@ if len(l) == 0:
 print example + ': Accumulating images'
 accum = info["accum"]
 originating_event_time = Map(l[0]).date
-mc = Map(aware_utils.accumulate_from_file_list(l, accum=accum, nsuper=1,verbose=True), cube=True)
+mc = Map(aware_utils.accumulate_from_file_list(l, accum=accum, nsuper=4,verbose=True), cube=True)
 
 # Get the originating location
 if not(example in simulated):
@@ -115,7 +116,7 @@ params = aware_utils.params(oresult[info['result']])
 
 
 # Unravel the data
-unraveled = aware.unravel(mc, params)
+unraveled = aware_utils.map_unravel(mc, params)
 
 # Unravel the data.  Note that the first element of the transformed array is, in these examples at least, not a good
 # representation of the wavefront.  It is there removed when calculating the unraveled maps
@@ -127,7 +128,7 @@ pickle.dump(umc, f)
 f.close()
 
 # Get the dynamics of the wave front
-dynamics = aware.dynamics(Map(umc[1:], cube=True), params,
+dynamics = aware.dynamics(umc[1:], params,
                           originating_event_time=originating_event_time,
                           error_choice=error_choice, position_choice=position_choice)
 
@@ -162,5 +163,11 @@ for i, r in enumerate(assessment_scores):
 #
 # Plot out summary dynamics for all the arcs
 #
-aware_plot.all_arcs_summary_plots(imgdir, example, dynamics, simulated_params=simulated_params)
+aware_plot.all_arcs_summary_plots(dynamics, imgdir, example, simulated_params=simulated_params)
+
+remc = aware_utils.map_reravel(umc,params)
+make_euvwave_colour_map(remc,mc,example,info,oresult)
+
+plot_poster_arcs(dynamics,example,info)
+
 

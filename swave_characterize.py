@@ -37,13 +37,13 @@ import mapcube_tools
 #
 
 # Select the wave
-example = 'wavenorm4'
+example = 'basic_wave'
 
 # What type of output do we want to analyze
 mctype = 'finalmaps'
 
 # Number of trials
-ntrials = 100
+ntrials = 1
 
 # Number of images
 max_steps = 80

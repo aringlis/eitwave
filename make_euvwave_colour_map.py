@@ -19,6 +19,13 @@ def make_euvwave_colour_map(transformed,mc,example,info,result,thresh=15.0):
                 'corpita_fig7':3,
                 'simulate':1}
 
+    arcind = {'previous1':29,
+              'corpita_fig4':15,
+              'corpita_fig6':1,
+              'corpita_fig7':70,
+              'corpita_fig8a':26,
+              'corpita_fig8e':69}
+
     n=startind[example]
 #mask = np.zeroes_like(transformed[0])
     
@@ -31,6 +38,8 @@ def make_euvwave_colour_map(transformed,mc,example,info,result,thresh=15.0):
         mask.data[ind] = counter
         if example == 'simulate':
             tims.append(h.meta['date_obs'][11:19])
+        elif h.meta['date-obs']:
+            tims.append(h.meta['date-obs'][11:19])
         else:
             tims.append(h.meta['t_obs'][11:19])
         counter = counter + 1
@@ -47,22 +56,22 @@ def make_euvwave_colour_map(transformed,mc,example,info,result,thresh=15.0):
 
     #now do some tricks to plot an arc on the top.
     params = aware_utils.params(result[info['result']])
-    arcmask = aware.unravel([mc[5]],params)
+    arcmask = aware_utils.map_unravel([mc[5]],params)
     arcmask[0].data[:] = 0.0
-    arcmask[0].data[:,2] = 1.0
+    arcmask[0].data[:,arcind[example]] = 1.0
     arcmap = aware_utils.map_reravel([arcmask[0]],params)
     arcmap2 = arcmap[0]
     inds = np.where(arcmap2.data == 0.0)
     arcmap2.data[inds] = np.nan
 
     #now make the composite map for the plot!
-    compmap = sunpy.map.Map(mc[5],mask,composite=True)#arcmap2,composite=True)
+    compmap = sunpy.map.Map(mc[5],mask,arcmap2,composite=True)
     #plt.clim([0,20000])
     compmap.set_colors(1,'nipy_spectral')
     compmap.set_colors(0,'gray_r')
     compmap.set_alpha(1,0.8)
-    #compmap.set_colors(2,'binary')
-    #compmap.set_alpha(2,0.6)
+    compmap.set_colors(2,'binary')
+    compmap.set_alpha(2,0.6)
     
     
     figure = plt.figure()
@@ -72,7 +81,7 @@ def make_euvwave_colour_map(transformed,mc,example,info,result,thresh=15.0):
     compmap.draw_grid()
     #plt.text(result[info[example]['result']]['hpc_x'],result[info[example]['result']]['hpc_y'],'x',fontsize=12,color='r')
     if not example == 'simulate':
-        plt.plot(result[info[example]['result']]['hpc_x'],result[info[example]['result']]['hpc_y'],'ro')
+        plt.plot(result[info['result']]['hpc_x'],result[info['result']]['hpc_y'],'ro')
     
     plt.clim([0,10000])
     

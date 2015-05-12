@@ -126,11 +126,14 @@ def map_hg_to_hpc_rotate(m, epi_lon=90, epi_lat=0, xbin=2.4, ybin=2.4):
 
     hpcx = np.arange(hpcx_range[0], hpcx_range[1], xbin)
     hpcy = np.arange(hpcy_range[0], hpcy_range[1], ybin)
+    print hpcx_range
+    print hpcy_range
+    print xbin,ybin
     newgrid_x, newgrid_y = np.meshgrid(hpcx, hpcy)
 
     # Coordinate positions (HPC) with corresponding map data
     points = np.vstack((xx.ravel(), yy.ravel())).T
-    values = np.array(m).ravel()
+    values = np.array(m.data).ravel()
 
     # 2D interpolation from origin grid to destination grid
     newdata = griddata(points[zpp.ravel() >= 0], values[zpp.ravel() >= 0],

@@ -29,14 +29,14 @@ def all_arcs_summary_plots(dynamics, imgdir, example, simulated_params=None):
     :return:
     """
 
-    position_choice = dynamics[0][0].position_choice
-    error_choice = dynamics[0][0].error_choice
+    position_choice = dynamics[0][1].position_choice
+    error_choice = dynamics[0][1].error_choice
 
     # Plot all the arcs
     plt.figure(1)
     for r in dynamics:
         if r[1].fitted:
-            plt.plot(r[1].timef, r[1].locf)
+            plt.plot(r[1].timef.value, r[1].locf)
     plt.xlabel('time since originating event')
     plt.ylabel('degrees of arc from originating event [%s, %s]' % (position_choice, error_choice))
     plt.title(example + ': wavefront locations')
@@ -49,7 +49,7 @@ def all_arcs_summary_plots(dynamics, imgdir, example, simulated_params=None):
     for r in dynamics:
         if r[1].fitted:
             p = np.poly1d(r[1].quadfit)
-            time = np.arange(0, r[0].times[-1])
+            time = np.arange(0, r[0].times[-1].value)
             plt.plot(time, p(time))
     plt.xlabel('time since originating event')
     plt.ylabel('degrees of arc from originating event [%s, %s]' % (position_choice, error_choice))
@@ -67,8 +67,8 @@ def all_arcs_summary_plots(dynamics, imgdir, example, simulated_params=None):
     notfitted =[]
     for ir, r in enumerate(dynamics):
         if r[1].fitted:
-            v.append(r[1].velocity)
-            ve.append(r[1].velocity_error)
+            v.append(r[1].velocity.value)
+            ve.append(r[1].velocity_error.value)
             arcindex.append(ir)
         else:
             notfitted.append(ir)
@@ -94,8 +94,8 @@ def all_arcs_summary_plots(dynamics, imgdir, example, simulated_params=None):
     notfitted =[]
     for ir, r in enumerate(dynamics):
         if r[1].fitted:
-            a.append(r[1].acceleration)
-            ae.append(r[1].acceleration_error)
+            a.append(r[1].acceleration.value)
+            ae.append(r[1].acceleration_error.value)
             arcindex.append(ir)
         else:
             notfitted.append(ir)
@@ -120,39 +120,40 @@ def all_arcs_summary_plots(dynamics, imgdir, example, simulated_params=None):
 # single arc.
 #
 def fitposition(fp):
+    fp.errorf[:]=0.0
 
     # Plot all the data
-    plt.scatter(fp.times,
+    plt.scatter(fp.times.value,
                 fp.pos,
                 label='measured wave location (%s, %s)' % (fp.position_choice, fp.error_choice),
                 marker='.', c='b')
 
     # Plot the data that was assessed to be fitable
-    plt.errorbar(fp.timef,
+    plt.errorbar(fp.timef.value,
                  fp.locf,
                  yerr=(fp.errorf, fp.errorf),
                  fmt='ro',
                  label='fitted data')
 
-    plt.xlim(0.0, fp.times[-1])
+    plt.xlim(0.0, fp.times[-1].value)
     # Locations of fit results printed as text on the plot
-    tpos = 0.5 * (fp.times[1] - fp.times[0]) + fp.times[0]
+    tpos = 0.5 * (fp.times[1].value - fp.times[0].value) + fp.times[0].value
     ylim = plt.ylim()
     ylim = [0.5 * (ylim[0] + ylim[1]), ylim[1]]
     lpos = ylim[0] + np.arange(1, 4) * (ylim[1] - ylim[0]) / 4.0
 
     # Plot the results of the fit process.
-    if fp.fitted:
-        plt.plot(fp.timef,
-                 fp.bestfit, label='best fit')
+    #if fp.fitted:
+    #    plt.plot(fp.timef.value,
+    #             fp.bestfit, label='best fit')
         # Strings describing the fit parameters
-        acc_string = _result_string(1000 * fp.acceleration, 1000 * fp.acceleration_error, "$a=", '\, m s^{-2}$')
-        v_string = _result_string(fp.velocity, fp.velocity_error, "$v=", '\, km s^{-1}$')
-        plt.text(tpos, lpos[0], acc_string)
-        plt.text(tpos, lpos[1], v_string)
-        plt.axvline(fp.offset, linestyle=":", label='first measurement (time=%.1f)' % fp.offset, color='k')
-    else:
-        plt.text(tpos, ylim[1], 'fit failed')
+     #   acc_string = _result_string(1000 * fp.acceleration.value, 1000 * fp.acceleration_error.value, "$a=", '\, m s^{-2}$')
+     #   v_string = _result_string(fp.velocity.value, fp.velocity_error.value, "$v=", '\, km s^{-1}$')
+     #   plt.text(tpos, lpos[0], acc_string)
+     #   plt.text(tpos, lpos[1], v_string)
+      #  plt.axvline(fp.offset, linestyle=":", label='first measurement (time=%.1f)' % fp.offset, color='k')
+    #else:
+    #    plt.text(tpos, ylim[1], 'fit failed')
 
     # Label the plot
     plt.xlabel('time since originating event (seconds)')
