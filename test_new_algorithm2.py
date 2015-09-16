@@ -15,6 +15,7 @@ import test_wave2d
 import aware_utils
 import aware_plot
 from make_euvwave_colour_map import make_euvwave_colour_map
+from plot_poster_arcs import plot_poster_arcs
 
 plt.ion()
 

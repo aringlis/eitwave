@@ -233,10 +233,10 @@ def accumulate_from_file_list(filelist, accum=2, nsuper=4, normalize=True,
                 print('Reading in file ' + filename)
             # Get the initial map
             if i == 0:
-                map0 = (Map(filename)).superpixel((nsuper, nsuper))
+                map0 = (Map(filename)).superpixel((nsuper, nsuper)*u.pix)
 
             # Get the next map
-            map1 = (Map(filename)).superpixel((nsuper, nsuper))
+            map1 = (Map(filename)).superpixel((nsuper, nsuper)*u.pix)
 
             # Normalizaion
             if normalize:
